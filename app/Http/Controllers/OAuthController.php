@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Http;
 class OAuthController extends Controller
 {
     public function login(Request $request) {
+        if(Auth::check()){
+            return redirect('/home');
+        }
+
         $request->session()->put('oauth_state', $state = Str::random(40));
 
         $query = http_build_query([
@@ -55,5 +59,10 @@ class OAuthController extends Controller
         }
 
         return redirect('/home');
+    }
+
+    public function logout(Request $request) {
+        Auth::logout();
+        return redirect('/');
     }
 }

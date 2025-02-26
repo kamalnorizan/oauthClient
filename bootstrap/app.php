@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias(
             [
                 'oauth' => ValidateOAuthToken::class,
+                'oauth.client' => \App\Http\Middleware\OauthTokenCheck::class,
             ]
         );
     })

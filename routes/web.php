@@ -13,9 +13,11 @@ Route::get('/', function () {
 
 Route::get('/home', function () {
     return view('welcome');
-})->middleware(['auth']);
+})->middleware(['auth','oauth.client']);
 
 Route::get('/login', [OAuthController::class, 'login'])->name('login');
+Route::get('/logout', [OAuthController::class, 'logout'])->name('logout');
+
 Route::get('/oauth/callback', [OAuthController::class, 'callback']);
 
 Route::get('/user/sync', [UserController::class, 'syncUser']);
