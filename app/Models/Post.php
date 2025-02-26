@@ -10,6 +10,7 @@ class Post extends Model
     /** @use HasFactory<\Database\Factories\PostFactory> */
     use HasFactory;
 
+    protected $connection = 'mysql';
     public $timestamps = true;
 
     protected $table = 'posts';
