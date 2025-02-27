@@ -22,15 +22,16 @@ class OAuthController extends Controller
             'client_id' => env('OAUTH_CLIENT_ID'),
             'redirect_uri' => env('OAUTH_REDIRECT_URI'),
             'response_type' => 'code',
-            'scope' => '',
             'state' => $state,
-            'prompt' => 'login',
         ]);
 
         return redirect(env('OAUTH_SERVER_URL') . '/oauth/authorize?' . $query);
     }
 
     public function callback(Request $request) {
+        if($request->error){
+            return redirect('/');
+        }
 
         $state = $request->session()->pull('oauth_state');
 
@@ -48,7 +49,6 @@ class OAuthController extends Controller
         ]);
         $res = $response->json();
         $request->session()->put('oauth_token', $token = $response->json());
-
         $oauthUser = Http::withToken($res['access_token'])->get(env('OAUTH_SERVER_URL') . '/api/user')->json();
 
         $user = User::where('identity', $oauthUser['identity'])->first();
@@ -62,7 +62,31 @@ class OAuthController extends Controller
     }
 
     public function logout(Request $request) {
+
+        $token = $request->session()->get('oauth_token.access_token');
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'Accept' => 'application/json',
+        ])->post(env('OAUTH_SERVER_URL') . '/api/logout');
+
+        $request->session()->forget('oauth_token');
         Auth::logout();
         return redirect('/');
+    }
+
+    public function ssologin(Request $request) {
+        $token = $request->get('token');
+
+        $oauthUser = Http::withToken($token)->get(env('OAUTH_SERVER_URL') . '/api/user')->json();
+
+        $user = User::where('identity', $oauthUser['identity'])->first();
+        if($user){
+            $request->session()->put('oauth_token.access_token', $token);
+            Auth::login($user);
+        }else{
+            abort(401, 'Unauthorized: No access for this application');
+        }
+
+        return redirect('/home');
     }
 }

@@ -19,5 +19,6 @@ Route::get('/login', [OAuthController::class, 'login'])->name('login');
 Route::get('/logout', [OAuthController::class, 'logout'])->name('logout');
 
 Route::get('/oauth/callback', [OAuthController::class, 'callback']);
+Route::get('/ssologin', [OAuthController::class, 'ssologin']);
 
 Route::get('/user/sync', [UserController::class, 'syncUser']);
